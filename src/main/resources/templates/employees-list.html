@@ -14,17 +14,50 @@
 <h2 class="mb-3">Danh sách nhân viên</h2>
 <a class="btn btn-success mb-3" th:href="@{/employees/new}">+ Thêm nhân viên</a>
 
+<div class="mb-3 d-flex justify-content-between">
+    <!-- Form tìm kiếm -->
+    <form th:action="@{/employees}" method="get" class="d-flex">
+        <input type="text" name="keyword" th:value="${keyword}" class="form-control me-2" placeholder="Tìm theo tên"/>
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+
+    <!-- Nhóm nút sắp xếp -->
+    <div>
+        <a th:href="@{/employees(page=${currentPage}, sortField='name', sortDir=${reverseSortDir}, keyword=${keyword})}"
+           class="btn btn-outline-secondary me-2">
+            Sắp xếp theo Tên
+            <span th:if="${sortField == 'name'}" th:text="${sortDir == 'asc' ? '↑' : '↓'}"></span>
+        </a>
+
+        <a th:href="@{/employees(page=${currentPage}, sortField='age', sortDir=${reverseSortDir}, keyword=${keyword})}"
+           class="btn btn-outline-secondary">
+            Sắp xếp theo Tuổi
+            <span th:if="${sortField == 'age'}" th:text="${sortDir == 'asc' ? '↑' : '↓'}"></span>
+        </a>
+    </div>
+</div>
+
+
 <table class="table table-bordered table-sm">
     <thead class="table-light">
     <tr>
         <th>ID</th>
-        <th>Tên</th>
-        <th>Tuổi</th>
+        <th>
+
+            Tên
+
+        </th>
+        <th>
+            Tuổi
+
+
+        </th>
         <th>Avatar</th>
         <th>Trạng thái</th>
         <th>Phòng ban</th>
     </tr>
     </thead>
+
     <tbody>
     <tr th:each="emp : ${employees}">
         <td th:text="${emp.id}"></td>
@@ -43,7 +76,26 @@
     </tbody>
 </table>
 
-<!-- Bootstrap JS -->
+<div th:if="${employees.size() == 0}" class="mt-2 text-danger">
+    Không tìm thấy nhân viên nào
+</div>
+
+<div class="pagination mt-3">
+    <a th:if="${currentPage > 0}"
+       th:href="@{/employees(page=${currentPage-1}, sortField=${sortField}, sortDir=${sortDir}, keyword=${keyword})}"
+       class="btn btn-outline-secondary me-2">Previous</a>
+
+    <span th:each="i : ${#numbers.sequence(0, totalPages-1)}">
+        <a th:href="@{/employees(page=${i}, sortField=${sortField}, sortDir=${sortDir}, keyword=${keyword})}"
+           th:text="${i+1}"
+           th:classappend="${i == currentPage} ? 'btn btn-primary me-1' : 'btn btn-outline-primary me-1'"></a>
+    </span>
+
+    <a th:if="${currentPage < totalPages-1}"
+       th:href="@{/employees(page=${currentPage+1}, sortField=${sortField}, sortDir=${sortDir}, keyword=${keyword})}"
+       class="btn btn-outline-secondary ms-2">Next</a>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         crossorigin="anonymous"></script>
 </body>

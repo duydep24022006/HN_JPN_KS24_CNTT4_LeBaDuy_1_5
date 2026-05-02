@@ -1,6 +1,10 @@
 package re.cntt4.homework_304.controller;
 
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -11,6 +15,7 @@ import re.cntt4.homework_304.entity.Employee;
 import re.cntt4.homework_304.repository.DepartmentRepository;
 import re.cntt4.homework_304.repository.EmployeeRepository;
 import re.cntt4.homework_304.service.FileStorageService;
+
 
 @Controller
 public class EmployeeController {
@@ -28,11 +33,37 @@ public class EmployeeController {
     }
 
     @GetMapping("/employees")
-    public String listEmployees(Model model) {
-        model.addAttribute("employees", employeeRepository.findAll());
+    public String listEmployees(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "name") String sortField,
+            @RequestParam(defaultValue = "asc") String sortDir,
+            @RequestParam(defaultValue = "") String keyword,
+            Model model) {
+
+        Sort sort = sortDir.equals("asc") ? Sort.by(sortField).ascending()
+                : Sort.by(sortField).descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<Employee> employeePage;
+        if (keyword.isEmpty()) {
+            employeePage = employeeRepository.findAll(pageable);
+        } else {
+            employeePage = employeeRepository.findByNameContainingIgnoreCase(keyword, pageable);
+        }
+
+        model.addAttribute("employees", employeePage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", employeePage.getTotalPages());
+        model.addAttribute("totalItems", employeePage.getTotalElements());
+        model.addAttribute("sortField", sortField);
+        model.addAttribute("sortDir", sortDir);
+        model.addAttribute("reverseSortDir", sortDir.equals("asc") ? "desc" : "asc");
+        model.addAttribute("keyword", keyword);
+
         return "employees-list";
     }
-
     @GetMapping("/employees/new")
     public String showCreateForm(Model model) {
         model.addAttribute("employee", new EmployeeDTO());

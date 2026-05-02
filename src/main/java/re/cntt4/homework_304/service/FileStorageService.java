@@ -10,7 +10,7 @@ import java.util.UUID;
 @Service
 public class FileStorageService {
 
-    private final Path uploadDir = Paths.get("D:/JavaWedApplication/session15/HomeWork_30-4/uploads");
+    private final Path uploadDir = Paths.get("D:/JavaWedApplication/session15/HomeWork_30-4/uploads/");
 
     public FileStorageService() throws IOException {
         if (!Files.exists(uploadDir)) {
