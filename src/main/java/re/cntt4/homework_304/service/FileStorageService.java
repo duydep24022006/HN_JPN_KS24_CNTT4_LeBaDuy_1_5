@@ -33,4 +33,14 @@ public class FileStorageService {
         }
         return newFileName;
     }
+
+    public void deleteFile(String fileName) {
+        Path target = uploadDir.resolve(fileName);
+        try {
+            Files.deleteIfExists(target);
+        } catch (IOException e) {
+            throw new RuntimeException("Xóa file thất bại", e);
+        }
+    }
+
 }

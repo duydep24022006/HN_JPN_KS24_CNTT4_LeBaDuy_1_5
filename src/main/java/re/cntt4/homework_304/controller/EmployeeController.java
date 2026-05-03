@@ -61,6 +61,7 @@ public class EmployeeController {
         model.addAttribute("sortDir", sortDir);
         model.addAttribute("reverseSortDir", sortDir.equals("asc") ? "desc" : "asc");
         model.addAttribute("keyword", keyword);
+        model.addAttribute("departments", departmentRepository.findAll());
 
         return "employees-list";
     }
@@ -95,4 +96,25 @@ public class EmployeeController {
         employeeRepository.save(emp);
         return "redirect:/employees";
     }
+    @GetMapping("/employees/filter")
+    public String filterEmployees(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Long departmentId,
+            @RequestParam(required = false) Integer minAge,
+            @RequestParam(required = false) Integer maxAge,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            Model model) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Employee> employeePage = employeeRepository.searchEmployees(name, departmentId, minAge, maxAge, pageable);
+
+        model.addAttribute("employees", employeePage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", employeePage.getTotalPages());
+        model.addAttribute("departments", departmentRepository.findAll());
+
+        return "employees-list";
+    }
+
 }
